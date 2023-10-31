@@ -1,0 +1,331 @@
+---
+title: "Economic analysis, October 10th 2023"
+output: 
+  html_document:
+    css: Wil_style.css
+    theme: default
+    toc: TRUE
+    toc_float: TRUE
+    number_sections: TRUE
+always_allow_html: yes
+---
+
+```{r setup1, include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE)
+
+library(zoo)
+library(data.table)
+library(tidyverse)
+library(gglaplot)
+library(ggplot2)
+library(scales)
+library(readxl)
+library(knitr)
+library(sf)
+library(sp)
+library(kableExtra)
+library(magick)
+library(plotly)    
+library(RColorBrewer)
+library(htmltools)
+library(prettydoc)
+library(rmdformats)
+
+#devtools::load_all("C:/demogtools/")
+
+data_dir <- 'C:/Families/Data/'
+chart_dir <- 'C:/Families/Charts/'
+
+#colour_palette <- gla_colour_palette()[c(3,6,2,4,5,7,1)]
+
+# Disable scientific notation
+options(scipen=999)
+
+```
+
+
+```{r setup2, include=FALSE, echo=FALSE, warning=FALSE, message=FALSE}
+
+# Read in data 
+
+
+Input_Emp_Explore <- read.csv("Emp_Explore_CorrectTFR.csv") %>%   
+  data.frame
+
+
+boroughcodes <- read.csv("C:/Migration/Migration_R/DATA/Domestic/InnerLondon.csv") %>%   
+  data.frame
+
+
+
+Emp_Explore_codes <- Input_Emp_Explore %>%
+  left_join(boroughcodes, by=c("Code"="BoroughCode"))%>% 
+  mutate(Inner_factor= recode(Inner, "1"="Inner", "0"="Outer")) %>%
+  data.frame()
+
+```
+
+
+```{r fig_London_Emp_perc, fig.height = 5.56, fig.width = 9,  echo=FALSE, warning=FALSE, message=FALSE}
+
+
+catcolour2 = c('#ee266d', '#6da7de')
+
+library(ggrepel)
+
+Emp_perc_scatterplot <- Emp_Explore_codes %>%
+  ggplot(aes(x = Emp_perc_2022, y = TFR_2021, color=Inner_factor)) +
+  geom_point(shape=18,  size = 4) +
+  scale_color_manual(name='London Zone:', values = catcolour2) +
+  theme_gla(x_axis_title = TRUE,  y_axis_title = TRUE, free_y_facets = TRUE)+
+  labs(x = "Employment % in 2021", 
+       y = "TFR 2021") +
+  geom_text_repel(aes(label = Area), size = 4) +
+  labs(title= "TFR v. Emp percent for London boroughs", 
+       caption = paste0("Source: ONS, Chart: GLA demography"))
+Emp_perc_scatterplot
+
+# ggsave (filename = (paste0(chart_dir, "SMA_London_change_2011_scatterplot.png")),
+#          plot = SMA_absChange_scatterplot2,
+#          device = "png",
+#          dpi=600,
+#          width = 9,
+#          height = 5.56,
+#          units = "in")
+
+```
+
+
+```{r fig_London_NEET, fig.height = 5.56, fig.width = 9,  echo=FALSE, warning=FALSE, message=FALSE}
+
+
+catcolour2 = c('#ee266d', '#6da7de')
+
+library(ggrepel)
+
+NEET_scatterplot <- Emp_Explore_codes %>%
+  ggplot(aes(x = NEET_prop_2021, y = TFR_2021, color=Inner_factor)) +
+  geom_point(shape=18,  size = 4) +
+  scale_color_manual(name='London Zone:', values = catcolour2) +
+  theme_gla(x_axis_title = TRUE,  y_axis_title = TRUE, free_y_facets = TRUE)+
+  labs(x = "NEET % 2021", 
+       y = "TFR 2021") +
+  geom_text_repel(aes(label = Area), size = 4) +
+  labs(title= "TFR v. NEET for London boroughs", 
+       caption = paste0("Source: ONS, Chart: GLA demography"))
+NEET_scatterplot
+
+# ggsave (filename = (paste0(chart_dir, "SMA_London_change_2011_scatterplot.png")),
+#          plot = SMA_absChange_scatterplot2,
+#          device = "png",
+#          dpi=600,
+#          width = 9,
+#          height = 5.56,
+#          units = "in")
+
+```
+```{r fig_London_IMD_emp, fig.height = 5.56, fig.width = 9,  echo=FALSE, warning=FALSE, message=FALSE}
+
+
+catcolour2 = c('#ee266d', '#6da7de')
+
+library(ggrepel)
+
+IMD_emp_scatterplot <- Emp_Explore_codes %>%
+  ggplot(aes(x = IMD_emp_score, y = TFR_2021, color=Inner_factor)) +
+  geom_point(shape=18,  size = 4) +
+  scale_color_manual(name='London Zone:', values = catcolour2) +
+  theme_gla(x_axis_title = TRUE,  y_axis_title = TRUE, free_y_facets = TRUE)+
+  labs(x = "IMD employment score 2019", 
+       y = "TFR 2021") +
+  geom_text_repel(aes(label = Area), size = 4) +
+  labs(title= "TFR v. IMD employment score for London boroughs", 
+       caption = paste0("Source: ONS, Chart: GLA demography"))
+IMD_emp_scatterplot
+
+# ggsave (filename = (paste0(chart_dir, "SMA_London_change_2011_scatterplot.png")),
+#          plot = SMA_absChange_scatterplot2,
+#          device = "png",
+#          dpi=600,
+#          width = 9,
+#          height = 5.56,
+#          units = "in")
+
+```
+
+```{r fig_London_IMD_health, fig.height = 5.56, fig.width = 9,  echo=FALSE, warning=FALSE, message=FALSE}
+
+
+catcolour2 = c('#ee266d', '#6da7de')
+
+library(ggrepel)
+
+IMD_health_scatterplot <- Emp_Explore_codes %>%
+  ggplot(aes(x = IMD_health_score, y = TFR_2021, color=Inner_factor)) +
+  geom_point(shape=18,  size = 4) +
+  scale_color_manual(name='London Zone:', values = catcolour2) +
+  theme_gla(x_axis_title = TRUE,  y_axis_title = TRUE, free_y_facets = TRUE)+
+  labs(x = "IMD health score 2019", 
+       y = "TFR 2021") +
+  geom_text_repel(aes(label = Area), size = 4) +
+  labs(title= "TFR v. IMD health score for London boroughs", 
+       caption = paste0("Source: ONS, Chart: GLA demography"))
+IMD_health_scatterplot
+
+# ggsave (filename = (paste0(chart_dir, "SMA_London_change_2011_scatterplot.png")),
+#          plot = SMA_absChange_scatterplot2,
+#          device = "png",
+#          dpi=600,
+#          width = 9,
+#          height = 5.56,
+#          units = "in")
+
+```
+
+```{r fig_London_IMD_income, fig.height = 5.56, fig.width = 9,  echo=FALSE, warning=FALSE, message=FALSE}
+
+
+catcolour2 = c('#ee266d', '#6da7de')
+
+library(ggrepel)
+
+IMD_income_scatterplot <- Emp_Explore_codes %>%
+  ggplot(aes(x = IMD_income_score, y = TFR_2021, color=Inner_factor)) +
+  geom_point(shape=18,  size = 4) +
+  scale_color_manual(name='London Zone:', values = catcolour2) +
+  theme_gla(x_axis_title = TRUE,  y_axis_title = TRUE, free_y_facets = TRUE)+
+  labs(x = "IMD income score 2019", 
+       y = "TFR 2021") +
+  geom_text_repel(aes(label = Area), size = 4) +
+  labs(title= "TFR v. IMD income score for London boroughs", 
+       caption = paste0("Source: ONS, Chart: GLA demography"))
+IMD_income_scatterplot
+
+# ggsave (filename = (paste0(chart_dir, "SMA_London_change_2011_scatterplot.png")),
+#          plot = SMA_absChange_scatterplot2,
+#          device = "png",
+#          dpi=600,
+#          width = 9,
+#          height = 5.56,
+#          units = "in")
+
+```
+
+```{r fig_London_IMD_education, fig.height = 5.56, fig.width = 9,  echo=FALSE, warning=FALSE, message=FALSE}
+
+
+catcolour2 = c('#ee266d', '#6da7de')
+
+library(ggrepel)
+
+IMD_education_scatterplot <- Emp_Explore_codes %>%
+  ggplot(aes(x = IMD_education_score, y = TFR_2021, color=Inner_factor)) +
+  geom_point(shape=18,  size = 4) +
+  scale_color_manual(name='London Zone:', values = catcolour2) +
+  theme_gla(x_axis_title = TRUE,  y_axis_title = TRUE, free_y_facets = TRUE)+
+  labs(x = "IMD education score 2019", 
+       y = "TFR 2021") +
+  geom_text_repel(aes(label = Area), size = 4) +
+  labs(title= "TFR v. IMD education score for London boroughs", 
+       caption = paste0("Source: ONS, Chart: GLA demography"))
+IMD_education_scatterplot
+
+# ggsave (filename = (paste0(chart_dir, "SMA_London_change_2011_scatterplot.png")),
+#          plot = SMA_absChange_scatterplot2,
+#          device = "png",
+#          dpi=600,
+#          width = 9,
+#          height = 5.56,
+#          units = "in")
+
+```
+
+```{r fig_London_IMD_housing, fig.height = 5.56, fig.width = 9,  echo=FALSE, warning=FALSE, message=FALSE}
+
+
+catcolour2 = c('#ee266d', '#6da7de')
+
+library(ggrepel)
+
+IMD_housing_scatterplot <- Emp_Explore_codes %>%
+  ggplot(aes(x = IMD_housing_score, y = TFR_2021, color=Inner_factor)) +
+  geom_point(shape=18,  size = 4) +
+  scale_color_manual(name='London Zone:', values = catcolour2) +
+  theme_gla(x_axis_title = TRUE,  y_axis_title = TRUE, free_y_facets = TRUE)+
+  labs(x = "IMD housing score 2019", 
+       y = "TFR 2021") +
+  geom_text_repel(aes(label = Area), size = 4) +
+  labs(title= "TFR v. IMD housing score for London boroughs", 
+       caption = paste0("Source: ONS, Chart: GLA demography"))
+IMD_housing_scatterplot
+
+ggsave (filename = (paste0(chart_dir, "IMD_housing_scatterplot.png")),
+         plot = IMD_housing_scatterplot,
+         device = "png",
+         dpi=600,
+         width = 9,
+         height = 5.56,
+         units = "in")
+
+```
+
+```{r fig_London_IMD_living, fig.height = 5.56, fig.width = 9,  echo=FALSE, warning=FALSE, message=FALSE}
+
+
+catcolour2 = c('#ee266d', '#6da7de')
+
+library(ggrepel)
+
+IMD_living_scatterplot <- Emp_Explore_codes %>%
+  ggplot(aes(x = IMD_living_score, y = TFR_2021, color=Inner_factor)) +
+  geom_point(shape=18,  size = 4) +
+  scale_color_manual(name='London Zone:', values = catcolour2) +
+  theme_gla(x_axis_title = TRUE,  y_axis_title = TRUE, free_y_facets = TRUE)+
+  labs(x = "IMD living score 2019", 
+       y = "TFR 2021") +
+  geom_text_repel(aes(label = Area), size = 4) +
+  labs(title= "TFR v. IMD living score for London boroughs", 
+       caption = paste0("Source: ONS, Chart: GLA demography"))
+IMD_living_scatterplot
+
+ggsave (filename = (paste0(chart_dir, "IMD_living_scatterplot.png")),
+         plot = IMD_living_scatterplot,
+         device = "png",
+         dpi=600,
+         width = 9,
+         height = 5.56,
+         units = "in")
+
+
+```
+
+```{r fig_London_IMD_avg, fig.height = 5.56, fig.width = 9,  echo=FALSE, warning=FALSE, message=FALSE}
+
+
+catcolour2 = c('#ee266d', '#6da7de')
+
+library(ggrepel)
+
+IMD_avg_scatterplot <- Emp_Explore_codes %>%
+  ggplot(aes(x = IMD_Avg_2019, y = TFR_2021, color=Inner_factor)) +
+  geom_point(shape=18,  size = 4) +
+  scale_color_manual(name='London Zone:', values = catcolour2) +
+  theme_gla(x_axis_title = TRUE,  y_axis_title = TRUE, free_y_facets = TRUE)+
+  labs(x = "IMD average 2019", 
+       y = "TFR 2021") +
+  geom_text_repel(aes(label = Area), size = 4) +
+  labs(title= "TFR v. average IMD for London boroughs", 
+       caption = paste0("Source: ONS, Chart: GLA demography"))
+IMD_avg_scatterplot
+
+ggsave (filename = (paste0(chart_dir, "IMD_avg_scatterplot.png")),
+         plot = IMD_avg_scatterplot,
+         device = "png",
+         dpi=600,
+         width = 9,
+         height = 5.56,
+         units = "in")
+
+
+```
